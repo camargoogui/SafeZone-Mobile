@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLocations } from '../services/api';
-import { Location } from '../src/types/index';
+import { Location } from '../types';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
-import { SelectedLocationContext } from '../src/types';
+import { SelectedLocationContext } from '../types';
+import MapView, { Marker } from 'react-native-maps';
 
 const LocationsScreen: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -26,9 +27,6 @@ const LocationsScreen: React.FC = () => {
     try {
       const data = await getLocations();
       setLocations(data);
-      if (data.length > 0) {
-        setSelectedLocation(data[0]);
-      }
     } catch (error) {
       console.error('Erro ao carregar locais:', error);
     }
@@ -60,23 +58,30 @@ const LocationsScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Locais Monitorados</Text>
 
-        {/* Mapa interativo */}
+        {/* Mapa interativo real */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Mapa dos Locais</Text>
-          <View style={styles.mapContainer}>
-            {locations.map((location) => (
-              <TouchableOpacity
-                key={location.id}
-                style={[
-                  styles.mapMarker,
-                  { backgroundColor: location.status === 'crítico' ? '#f44336' : 
-                                   location.status === 'alerta' ? '#ff9800' : '#4caf50' }
-                ]}
-                onPress={() => setSelectedLocation(location)}
-              >
-                <Text style={styles.mapMarkerText}>{location.nome[0]}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={{ height: 250, borderRadius: 8, overflow: 'hidden', marginBottom: 8 }}>
+            <MapView
+              style={{ flex: 1 }}
+              initialRegion={{
+                latitude: -23.5505,
+                longitude: -46.6333,
+                latitudeDelta: 0.03,
+                longitudeDelta: 0.03,
+              }}
+            >
+              {locations.map((location) => (
+                <Marker
+                  key={location.id}
+                  coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                  title={location.nome}
+                  description={`Status: ${location.status} | Nível: ${location.nivel}m`}
+                  pinColor={location.status === 'crítico' ? '#f44336' : location.status === 'alerta' ? '#ff9800' : '#4caf50'}
+                  onPress={() => setSelectedLocation(location)}
+                />
+              ))}
+            </MapView>
           </View>
         </View>
 

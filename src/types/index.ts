@@ -6,6 +6,8 @@ export interface Location {
   status: 'normal' | 'alerta' | 'crítico';
   nivel: number;
   ultimaAtualizacao: string;
+  latitude: number;
+  longitude: number;
   local_id: string;
 }
 

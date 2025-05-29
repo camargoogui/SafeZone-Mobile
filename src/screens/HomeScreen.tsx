@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView, Image, ImageStyle } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { getLocations } from '../services/api';
 import LocationCard from '../components/LocationCard';
 import AlertBadge from '../components/AlertBadge';
-import { Location, AlertCounts, RootStackParamList, SelectedLocationContext } from '../src/types';
+import { Location, AlertCounts, SelectedLocationContext } from '../types';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
-interface HomeScreenProps {
-  navigation: HomeScreenNavigationProp;
-}
-
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC = ({ navigation }: any) => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [alertCounts, setAlertCounts] = useState<AlertCounts>({
@@ -27,13 +20,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     try {
       const data = await getLocations();
       setLocations(data);
-      
       const counts = data.reduce((acc: AlertCounts, loc: Location) => {
         acc[loc.status.toLowerCase() as keyof AlertCounts] = 
           (acc[loc.status.toLowerCase() as keyof AlertCounts] || 0) + 1;
         return acc;
       }, { crítico: 0, alerta: 0, normal: 0 });
-      
       setAlertCounts(counts);
     } catch (error) {
       console.error('Erro ao carregar locais:', error);
@@ -233,4 +224,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default HomeScreen; 

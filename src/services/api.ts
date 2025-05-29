@@ -1,4 +1,4 @@
-import { Location, Alert } from '../src/types';
+import { Location, Alert } from '../types';
 
 // Dados mockados para desenvolvimento
 const mockLocations: Location[] = [
@@ -8,6 +8,8 @@ const mockLocations: Location[] = [
     status: "normal",
     nivel: 15,
     ultimaAtualizacao: "2024-03-20 10:30",
+    latitude: -23.5505,
+    longitude: -46.6333,
     local_id: "FL001"
   },
   {
@@ -16,6 +18,8 @@ const mockLocations: Location[] = [
     status: "alerta",
     nivel: 45,
     ultimaAtualizacao: "2024-03-20 10:25",
+    latitude: -23.5632,
+    longitude: -46.6542,
     local_id: "PA001"
   },
   {
@@ -24,6 +28,8 @@ const mockLocations: Location[] = [
     status: "crítico",
     nivel: 80,
     ultimaAtualizacao: "2024-03-20 10:20",
+    latitude: -23.5489,
+    longitude: -46.6388,
     local_id: "AU001"
   }
 ];

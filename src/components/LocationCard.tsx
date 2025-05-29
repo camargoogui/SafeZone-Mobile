@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Location } from '../src/types';
+import { Location } from '../types';
 
 interface LocationCardProps {
   location: Location;
@@ -84,6 +84,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LocationCard;
-
- 
+export default LocationCard; 

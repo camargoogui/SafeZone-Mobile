@@ -2,17 +2,17 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { SelectedLocationContext } from './src/types';
 
-import HomeScreen from './screens/HomeScreen';
-import LocationsScreen from './screens/LocationsScreen';
-import AlertsScreen from './screens/AlertsScreen';
-import CommunityScreen from './screens/CommunityScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import LocationsScreen from './src/screens/LocationsScreen';
+import AlertsScreen from './src/screens/AlertsScreen';
+import CommunityScreen from './src/screens/CommunityScreen';
+import { SelectedLocationContext, Location } from './src/types';
 
 const Tab = createBottomTabNavigator();
 
 const App: React.FC = () => {
-  const [selectedLocation, setSelectedLocation] = React.useState(null);
+  const [selectedLocation, setSelectedLocation] = React.useState<Location | null>(null);
 
   return (
     <SelectedLocationContext.Provider value={{ selectedLocation, setSelectedLocation }}>

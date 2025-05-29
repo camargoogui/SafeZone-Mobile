@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLocations } from '../services/api';
-import { Location } from '../src/types';
+import { Location } from '../types';
 import { BarChart, PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 
@@ -93,6 +93,7 @@ const AlertsScreen: React.FC = () => {
             width={Dimensions.get('window').width - 64}
             height={220}
             yAxisLabel=""
+            yAxisSuffix=""
             chartConfig={{
               backgroundColor: '#ffffff',
               backgroundGradientFrom: '#ffffff',
@@ -128,10 +129,10 @@ const AlertsScreen: React.FC = () => {
                 <Text style={styles.rankingText}>{index + 1}</Text>
               </View>
               <View style={styles.rankingInfo}>
-                <Text style={styles.rankingTitle}>{location.name}</Text>
+                <Text style={styles.rankingTitle}>{location.nome}</Text>
                 <Text style={styles.rankingLevel}>Nível: {location.nivel}m</Text>
               </View>
-              <View style={[styles.rankingStatus, { backgroundColor: '#f44336' }]}>
+              <View style={[styles.rankingStatus, { backgroundColor: '#f44336' }]}> 
                 <Text style={styles.rankingStatusText}>Crítico</Text>
               </View>
             </View>
