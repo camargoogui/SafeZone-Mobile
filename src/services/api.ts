@@ -1,72 +1,19 @@
-import { Location, Alert } from '../types';
+import axios from 'axios';
+import { LocalDeRisco, Alerta } from '../types';
 
-// Dados mockados para desenvolvimento
-const mockLocations: Location[] = [
-  {
-    id: 1,
-    nome: "Rua das Flores",
-    status: "normal",
-    nivel: 15,
-    ultimaAtualizacao: "2024-03-20 10:30",
-    latitude: -23.5505,
-    longitude: -46.6333,
-    local_id: "FL001"
-  },
-  {
-    id: 2,
-    nome: "Avenida Paulista",
-    status: "alerta",
-    nivel: 45,
-    ultimaAtualizacao: "2024-03-20 10:25",
-    latitude: -23.5632,
-    longitude: -46.6542,
-    local_id: "PA001"
-  },
-  {
-    id: 3,
-    nome: "Rua Augusta",
-    status: "crítico",
-    nivel: 80,
-    ultimaAtualizacao: "2024-03-20 10:20",
-    latitude: -23.5489,
-    longitude: -46.6388,
-    local_id: "AU001"
-  }
-];
+const api = axios.create({
+  baseURL: 'http://10.0.2.2:5180/api',
+  headers: { 'Content-Type': 'application/json' },
+});
 
-const mockAlerts: Alert[] = [
-  {
-    id: 1,
-    local: "Rua Augusta",
-    tipo: "crítico",
-    nivel: 80,
-    data_hora: "2024-03-20 10:20"
-  },
-  {
-    id: 2,
-    local: "Avenida Paulista",
-    tipo: "alerta",
-    nivel: 45,
-    data_hora: "2024-03-20 10:25"
-  }
-];
+export const getLocaisDeRisco = () => api.get<LocalDeRisco[]>('/LocalDeRisco');
+export const getLocalDeRisco = (id: number) => api.get<LocalDeRisco>(`/LocalDeRisco/${id}`);
+export const createLocalDeRisco = (data: Partial<LocalDeRisco>) => api.post<LocalDeRisco>('/LocalDeRisco', data);
+export const updateLocalDeRisco = (id: number, data: Partial<LocalDeRisco>) => api.put<void>(`/LocalDeRisco/${id}`, data);
+export const deleteLocalDeRisco = (id: number) => api.delete<void>(`/LocalDeRisco/${id}`);
 
-export const getLocations = async (): Promise<Location[]> => {
-  // Simulando um delay de rede
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockLocations;
-};
+export const getAlertas = () => api.get<Alerta[]>('/Alerta');
+export const getAlerta = (id: number) => api.get<Alerta>(`/Alerta/${id}`);
+export const getAlertasAtivos = () => api.get<Alerta[]>('/Alerta/ativos');
 
-export const getLocationById = async (id: number): Promise<Location> => {
-  const location = mockLocations.find(loc => loc.id === id);
-  if (!location) {
-    throw new Error('Local não encontrado');
-  }
-  return location;
-};
-
-export const getAlerts = async (): Promise<Alert[]> => {
-  // Simulando um delay de rede
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockAlerts;
-}; 
+export default api;

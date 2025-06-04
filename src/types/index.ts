@@ -1,49 +1,20 @@
-import React from 'react';
-
-export interface Location {
+export interface LocalDeRisco {
   id: number;
   nome: string;
-  status: 'normal' | 'alerta' | 'crítico';
-  nivel: number;
-  ultimaAtualizacao: string;
-  latitude: number;
-  longitude: number;
-  local_id: string;
+  bairro: string;
+  cidade: string;
+  statusAlerta: 'Normal' | 'Alerta' | 'Crítico';
 }
 
-export interface Alert {
+export interface Alerta {
   id: number;
-  local: string;
-  tipo: 'normal' | 'alerta' | 'crítico';
-  nivel: number;
-  data_hora: string;
+  localDeRiscoId: number;
+  tipoAlerta: string;
+  dataHora: string;
+  status: string;
 }
 
-export interface AlertCounts {
-  crítico: number;
-  alerta: number;
-  normal: number;
+export interface LocationCardData extends LocalDeRisco {
+  nivel?: number;
+  ultimaAtualizacao?: string;
 }
-
-export interface FormData {
-  nome: string;
-  local_id: string;
-}
-
-export type RootStackParamList = {
-  Home: undefined;
-  Locations: undefined;
-  Details: { location: Location };
-  AddLocation: undefined;
-  AlertsHistory: undefined;
-};
-
-export interface SelectedLocationContextType {
-  selectedLocation: Location | null;
-  setSelectedLocation: (location: Location | null) => void;
-}
-
-export const SelectedLocationContext = React.createContext<SelectedLocationContextType>({
-  selectedLocation: null,
-  setSelectedLocation: () => {},
-}); 

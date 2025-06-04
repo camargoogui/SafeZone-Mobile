@@ -1,227 +1,86 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { getLocations } from '../services/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, SafeAreaView, TextInput, TouchableOpacity, Alert } from 'react-native';
 import LocationCard from '../components/LocationCard';
-import AlertBadge from '../components/AlertBadge';
-import { Location, AlertCounts, SelectedLocationContext } from '../types';
+import Header from '../components/Header';
+import { getLocaisDeRisco } from '../services/api';
+import { LocalDeRisco } from '../types';
+import { colors, spacing, fontSizes } from '../theme/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen: React.FC = ({ navigation }: any) => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [alertCounts, setAlertCounts] = useState<AlertCounts>({
-    crítico: 0,
-    alerta: 0,
-    normal: 0,
-  });
-  const { setSelectedLocation } = useContext(SelectedLocationContext);
+  const [locais, setLocais] = useState<LocalDeRisco[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const loadLocations = async (): Promise<void> => {
+  const loadData = useCallback(async () => {
     try {
-      const data = await getLocations();
-      setLocations(data);
-      const counts = data.reduce((acc: AlertCounts, loc: Location) => {
-        acc[loc.status.toLowerCase() as keyof AlertCounts] = 
-          (acc[loc.status.toLowerCase() as keyof AlertCounts] || 0) + 1;
-        return acc;
-      }, { crítico: 0, alerta: 0, normal: 0 });
-      setAlertCounts(counts);
-    } catch (error) {
-      console.error('Erro ao carregar locais:', error);
+      setLoading(true);
+      const locaisResponse = await getLocaisDeRisco();
+      setLocais(locaisResponse.data);
+    } catch {
+      Alert.alert('Erro', 'Não foi possível carregar os locais.');
+      setLocais([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    loadLocations();
   }, []);
 
-  const onRefresh = async (): Promise<void> => {
-    setRefreshing(true);
-    await loadLocations();
-    setRefreshing(false);
-  };
+  useEffect(() => { loadData(); }, [loadData]);
+  const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); }, [loadData]);
 
-  // Ordena por nível e pega os dois mais críticos
-  const topCritical = locations
-    .filter((loc) => loc.status.toLowerCase() !== 'normal')
-    .sort((a, b) => b.nivel - a.nivel)
-    .slice(0, 2);
+  const locaisFiltrados = locais.filter(local =>
+    local.nome.toLowerCase().includes(search.toLowerCase()) ||
+    local.cidade.toLowerCase().includes(search.toLowerCase()) ||
+    local.bairro.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Título centralizado */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.appTitle}>SafeZone</Text>
+      <Header title="Locais Monitorados" />
+      <ScrollView contentContainerStyle={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+        <TextInput
+          style={styles.search}
+          placeholder="Buscar por nome, cidade ou bairro..."
+          value={search}
+          onChangeText={setSearch}
+        />
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Todos os Locais</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : locaisFiltrados.length === 0 ? (
+            <Text style={styles.noAlertsText}>Nenhum local cadastrado.</Text>
+          ) : (
+            locaisFiltrados.map(local => (
+              <LocationCard
+                key={local.id.toString()}
+                location={local}
+                onPress={() => navigation.navigate('Detalhes', { localId: local.id })}
+              />
+            ))
+          )}
         </View>
-
-        {/* Banner de boas-vindas */}
-        <View style={styles.banner}>
-          <Ionicons name="shield-checkmark" size={36} color="#fff" style={{ marginRight: 12 }} />
-          <View>
-            <Text style={styles.bannerTitle}>Bem-vindo ao SafeZone</Text>
-            <Text style={styles.bannerSubtitle}>Monitoramento inteligente de enchentes urbanas</Text>
-          </View>
-        </View>
-
-        {/* Resumo dos alertas */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Resumo de Alertas</Text>
-          <View style={styles.badgesRow}>
-            <View style={styles.badgeCol}>
-              <Ionicons name="alert-circle" size={28} color="#f44336" style={{ marginBottom: 2 }} />
-              <Text style={styles.badgeLabel}>Crítico</Text>
-            </View>
-            <View style={styles.badgeCol}>
-              <Ionicons name="warning" size={28} color="#ff9800" style={{ marginBottom: 2 }} />
-              <Text style={styles.badgeLabel}>Alerta</Text>
-            </View>
-            <View style={styles.badgeCol}>
-              <Ionicons name="checkmark-circle" size={28} color="#4caf50" style={{ marginBottom: 2 }} />
-              <Text style={styles.badgeLabel}>Normal</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Locais mais críticos */}
-        <Text style={styles.sectionTitle}>Locais em Alerta Crítico</Text>
-        {topCritical.length === 0 ? (
-          <Text style={styles.noCritical}>Nenhum local em alerta no momento.</Text>
-        ) : (
-          topCritical.map((location) => (
-            <LocationCard
-              key={location.id}
-              location={location}
-              onPress={() => {
-                setSelectedLocation(location);
-                (navigation as any).navigate('Locais');
-              }}
-            />
-          ))
-        )}
-
-        {/* Botão para histórico de alertas */}
-        <TouchableOpacity
-          style={styles.historyBtn}
-          onPress={() => (navigation as any).navigate('Alertas')}
-        >
-          <MaterialIcons name="history" size={22} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.historyBtnText}>Ver Histórico de Alertas</Text>
-        </TouchableOpacity>
       </ScrollView>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('LocationForm', { mode: 'create' })}
+      >
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 56,
-    marginBottom: 16,
-  },
-  appTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-    letterSpacing: 1,
-  },
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e88e5',
-    padding: 18,
-    borderRadius: 12,
-    margin: 16,
-    marginBottom: 8,
-    elevation: 2,
-    justifyContent: 'center',
-  },
-  bannerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  bannerSubtitle: {
-    color: '#e3f2fd',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginBottom: 8,
-    alignItems: 'center',
-    elevation: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  badgeCol: {
-    alignItems: 'center',
-    marginHorizontal: 8,
-  },
-  badgeLabel: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 2,
-    fontWeight: 'bold',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    margin: 16,
-    color: '#333',
-  },
-  noCritical: {
-    textAlign: 'center',
-    color: '#888',
-    marginBottom: 16,
-  },
-  historyBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e88e5',
-    padding: 14,
-    borderRadius: 8,
-    margin: 16,
-    justifyContent: 'center',
-    elevation: 2,
-  },
-  historyBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  container: { paddingVertical: spacing.md },
+  search: { backgroundColor: '#fff', borderRadius: spacing.sm, padding: spacing.sm, marginHorizontal: spacing.md, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.border },
+  sectionCard: { backgroundColor: colors.card, borderRadius: spacing.md, padding: spacing.md, marginHorizontal: spacing.md, marginVertical: spacing.sm, elevation: 2, shadowColor: colors.text, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3.84 },
+  sectionTitle: { fontSize: fontSizes.large, fontWeight: 'bold', marginBottom: spacing.sm, color: colors.primary },
+  noAlertsText: { fontSize: fontSizes.medium, color: colors.muted, textAlign: 'center', paddingVertical: spacing.lg },
+  fab: { position: 'absolute', bottom: 32, right: 32, backgroundColor: colors.primary, borderRadius: 32, padding: 16, elevation: 4 },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

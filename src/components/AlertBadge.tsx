@@ -1,37 +1,37 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors, spacing, fontSizes } from '../theme/theme';
 
 interface AlertBadgeProps {
-  status: 'crítico' | 'alerta' | 'normal';
+  status: 'Crítico' | 'Alerta' | 'Normal';
 }
 
-const AlertBadge: React.FC<AlertBadgeProps> = ({ status }) => {
-  const getColor = () => {
-    if (status === 'crítico') return '#f44336';
-    if (status === 'alerta') return '#ff9800';
-    return '#4caf50';
-  };
-  return (
-    <View style={[styles.badge, { backgroundColor: getColor() }]}> 
-      <Text style={styles.text}>{status.toUpperCase()}</Text>
-    </View>
-  );
+const getColor = (status: string) => {
+  if (status === 'Crítico') return colors.danger;
+  if (status === 'Alerta') return colors.secondary;
+  return colors.success;
 };
+
+const AlertBadge: React.FC<AlertBadgeProps> = ({ status }) => (
+  <View style={[styles.badge, { backgroundColor: getColor(status) }]}>
+    <Text style={styles.text}>{status.toUpperCase()}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   badge: {
     borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   text: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: fontSizes.small,
   },
 });
 
-export default AlertBadge; 
+export default AlertBadge;

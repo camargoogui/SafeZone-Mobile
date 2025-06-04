@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, fontSizes } from '../theme/theme';
+import Header from '../components/Header';
 
 const CommunityScreen: React.FC = () => {
   const [reportText, setReportText] = useState('');
@@ -41,10 +43,8 @@ const CommunityScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Header title="Comunidade" />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Comunidade</Text>
-
-        {/* Campo para reportar problema */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Reportar Problema</Text>
           <TextInput
@@ -60,8 +60,6 @@ const CommunityScreen: React.FC = () => {
             <Text style={styles.reportBtnText}>Enviar Relato</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Feed de relatos */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Relatos Recentes</Text>
           {reports.map(report => (
@@ -85,8 +83,6 @@ const CommunityScreen: React.FC = () => {
             </View>
           ))}
         </View>
-
-        {/* Dicas da comunidade */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Dicas da Comunidade</Text>
           {tips.map(tip => (
@@ -102,122 +98,25 @@ const CommunityScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    alignItems: 'center',
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-    marginTop: 56,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  sectionCard: {
-    width: '92%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 18,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 4,
-    alignSelf: 'center',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  reportBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e88e5',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    alignSelf: 'center',
-  },
-  reportBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  reportItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingVertical: 12,
-  },
-  reportHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  reportUser: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  reportTime: {
-    fontSize: 14,
-    color: '#666',
-  },
-  reportLocation: {
-    fontSize: 14,
-    color: '#1e88e5',
-    marginBottom: 8,
-  },
-  reportText: {
-    fontSize: 15,
-    color: '#333',
-    marginBottom: 12,
-  },
-  reportActions: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  actionText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  tipItem: {
-    marginBottom: 16,
-  },
-  tipTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  tipContent: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  container: { alignItems: 'center', paddingBottom: spacing.xl },
+  sectionCard: { width: '92%', backgroundColor: colors.card, borderRadius: spacing.md, padding: spacing.md, marginBottom: spacing.md, elevation: 2, shadowColor: colors.text, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 4, alignSelf: 'center' },
+  sectionTitle: { fontSize: fontSizes.large, fontWeight: 'bold', color: colors.primary, marginBottom: spacing.sm, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: spacing.sm, padding: spacing.md, marginBottom: spacing.md, minHeight: 100, textAlignVertical: 'top' },
+  reportBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: spacing.sm, alignSelf: 'center' },
+  reportBtnText: { color: '#fff', fontWeight: 'bold', fontSize: fontSizes.medium },
+  reportItem: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: spacing.md },
+  reportHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
+  reportUser: { fontSize: fontSizes.medium, fontWeight: 'bold', color: colors.text },
+  reportTime: { fontSize: fontSizes.small, color: colors.muted },
+  reportLocation: { fontSize: fontSizes.small, color: colors.primary, marginBottom: spacing.xs },
+  reportText: { fontSize: fontSizes.medium, color: colors.text, marginBottom: spacing.sm },
+  reportActions: { flexDirection: 'row', gap: spacing.md },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  actionText: { fontSize: fontSizes.small, color: colors.muted },
+  tipItem: { marginBottom: spacing.md },
+  tipTitle: { fontSize: fontSizes.medium, fontWeight: 'bold', color: colors.text, marginBottom: spacing.xs },
+  tipContent: { fontSize: fontSizes.small, color: colors.muted, lineHeight: 20 },
 });
 
-export default CommunityScreen; 
+export default CommunityScreen

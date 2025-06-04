@@ -1,142 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { getLocations } from '../services/api';
-import { Location } from '../types';
-import { BarChart, PieChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Button, TextInput } from 'react-native';
+import Header from '../components/Header';
+import { getAlertasAtivos, getLocaisDeRisco } from '../services/api';
+import { Alerta, LocalDeRisco } from '../types';
+import { colors, spacing, fontSizes } from '../theme/theme';
 
-const AlertsScreen: React.FC = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [criticalLocations, setCriticalLocations] = useState<Location[]>([]);
+const AlertsScreen: React.FC = ({ navigation }: any) => {
+  const [activeAlerts, setActiveAlerts] = useState<Alerta[]>([]);
+  const [locaisDeRisco, setLocaisDeRisco] = useState<LocalDeRisco[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    loadLocations();
-  }, []);
+  useEffect(() => { loadAlertData(); }, []);
 
-  const loadLocations = async () => {
+  const loadAlertData = async () => {
     try {
-      const data = await getLocations();
-      setLocations(data);
-      setCriticalLocations(data.filter(loc => loc.status === 'crítico'));
-    } catch (error) {
-      console.error('Erro ao carregar locais:', error);
+      setLoading(true);
+      setError(null);
+      const alertsResponse = await getAlertasAtivos();
+      setActiveAlerts(alertsResponse.data);
+      const locaisResponse = await getLocaisDeRisco();
+      setLocaisDeRisco(locaisResponse.data);
+    } catch {
+      setError('Não foi possível carregar os dados de alertas.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const barData = {
-    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-    datasets: [
-      {
-        data: [3, 5, 2, 4, 6, 3, 2]
-      }
-    ]
+  const getLocalNome = (localId: number): string => {
+    const local = locaisDeRisco.find(l => l.id === localId);
+    return local ? local.nome : 'Local Desconhecido';
   };
 
-  const pieData = [
-    {
-      name: 'Crítico',
-      population: 3,
-      color: '#f44336',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12
-    },
-    {
-      name: 'Alerta',
-      population: 5,
-      color: '#ff9800',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12
-    },
-    {
-      name: 'Normal',
-      population: 12,
-      color: '#4caf50',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 12
-    }
-  ];
+  const alertasFiltrados = activeAlerts.filter(alerta =>
+    getLocalNome(alerta.localDeRiscoId).toLowerCase().includes(search.toLowerCase()) ||
+    alerta.tipoAlerta.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Header title="Alertas Ativos" />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Alertas</Text>
-
-        {/* Linha do tempo dos alertas */}
+        <TextInput
+          style={styles.search}
+          placeholder="Buscar por local ou tipo de alerta..."
+          value={search}
+          onChangeText={setSearch}
+        />
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Linha do Tempo</Text>
-          <View style={styles.timeline}>
-            <View style={styles.timelineItem}>
-              <View style={[styles.timelineDot, { backgroundColor: '#f44336' }]} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>Alerta Crítico - Rio Tietê</Text>
-                <Text style={styles.timelineDate}>Hoje, 14:30</Text>
-                <Text style={styles.timelineDesc}>Nível da água atingiu 2.5m</Text>
-              </View>
+          <Text style={styles.sectionTitle}>Alertas Recentes</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : error ? (
+            <View>
+              <Text style={styles.errorText}>{error}</Text>
+              <Button title="Tentar Novamente" onPress={loadAlertData} />
             </View>
-            <View style={styles.timelineItem}>
-              <View style={[styles.timelineDot, { backgroundColor: '#ff9800' }]} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>Alerta Moderado - Córrego do Limoeiro</Text>
-                <Text style={styles.timelineDate}>Hoje, 12:15</Text>
-                <Text style={styles.timelineDesc}>Nível da água atingiu 1.8m</Text>
+          ) : alertasFiltrados.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: colors.muted }}>Nenhum alerta ativo no momento.</Text>
+          ) : (
+            alertasFiltrados.map(alerta => (
+              <View key={alerta.id} style={styles.timelineItem}>
+                <View style={styles.timelineContent}>
+                  <Text style={styles.timelineTitle}>Alerta - {getLocalNome(alerta.localDeRiscoId)}</Text>
+                  <Text style={styles.timelineDate}>{new Date(alerta.dataHora).toLocaleString()}</Text>
+                  <Text style={styles.timelineDesc}>{alerta.tipoAlerta}</Text>
+                  <Button title="Ver Detalhes" onPress={() => navigation.navigate('Detalhes', { localId: alerta.localDeRiscoId })} />
+                </View>
               </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Gráficos de estatísticas */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Estatísticas de Alertas</Text>
-          <BarChart
-            data={barData}
-            width={Dimensions.get('window').width - 64}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(30, 136, 229, ${opacity})`,
-              style: {
-                borderRadius: 16
-              }
-            }}
-            style={styles.chart}
-          />
-          <PieChart
-            data={pieData}
-            width={Dimensions.get('window').width - 64}
-            height={220}
-            chartConfig={{
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-            style={styles.chart}
-          />
-        </View>
-
-        {/* Ranking dos locais mais críticos */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Locais Mais Críticos</Text>
-          {criticalLocations.map((location, index) => (
-            <View key={location.id} style={styles.rankingItem}>
-              <View style={styles.rankingNumber}>
-                <Text style={styles.rankingText}>{index + 1}</Text>
-              </View>
-              <View style={styles.rankingInfo}>
-                <Text style={styles.rankingTitle}>{location.nome}</Text>
-                <Text style={styles.rankingLevel}>Nível: {location.nivel}m</Text>
-              </View>
-              <View style={[styles.rankingStatus, { backgroundColor: '#f44336' }]}> 
-                <Text style={styles.rankingStatusText}>Crítico</Text>
-              </View>
-            </View>
-          ))}
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -144,122 +79,17 @@ const AlertsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    alignItems: 'center',
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-    marginTop: 56,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  sectionCard: {
-    width: '92%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 18,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 4,
-    alignSelf: 'center',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1e88e5',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  timeline: {
-    marginTop: 8,
-  },
-  timelineItem: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  timelineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-    marginTop: 6,
-  },
-  timelineContent: {
-    flex: 1,
-  },
-  timelineTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  timelineDate: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-  },
-  timelineDesc: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  chart: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-  rankingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  rankingNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#1e88e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  rankingText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  rankingInfo: {
-    flex: 1,
-  },
-  rankingTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  rankingLevel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-  },
-  rankingStatus: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  rankingStatusText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  container: { alignItems: 'center', paddingBottom: spacing.xl, paddingTop: spacing.xl },
+  search: { backgroundColor: '#fff', borderRadius: spacing.sm, padding: spacing.sm, marginHorizontal: spacing.md, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.border, width: '92%' },
+  sectionCard: { width: '92%', backgroundColor: colors.card, borderRadius: spacing.md, padding: spacing.md, marginBottom: spacing.md, elevation: 2, shadowColor: colors.text, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 4, alignSelf: 'center' },
+  sectionTitle: { fontSize: fontSizes.large, fontWeight: 'bold', color: colors.primary, marginBottom: spacing.sm, textAlign: 'center' },
+  timelineItem: { flexDirection: 'row', marginBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: spacing.sm },
+  timelineContent: { flex: 1 },
+  timelineTitle: { fontSize: fontSizes.medium, fontWeight: 'bold', color: colors.text },
+  timelineDate: { fontSize: fontSizes.small, color: colors.muted, marginTop: spacing.xs },
+  timelineDesc: { fontSize: fontSizes.small, color: colors.muted, marginTop: spacing.xs },
+  errorText: { color: colors.danger, textAlign: 'center', marginBottom: spacing.sm },
 });
 
-export default AlertsScreen; 
+export default AlertsScreen;
