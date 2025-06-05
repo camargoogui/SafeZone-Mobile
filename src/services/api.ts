@@ -15,5 +15,30 @@ export const deleteLocalDeRisco = (id: number) => api.delete<void>(`/LocalDeRisc
 export const getAlertas = () => api.get<Alerta[]>('/Alerta');
 export const getAlerta = (id: number) => api.get<Alerta>(`/Alerta/${id}`);
 export const getAlertasAtivos = () => api.get<Alerta[]>('/Alerta/ativos');
+export const createAlerta = (data: Partial<Alerta>) => api.post<Alerta>('/Alerta', data);
+export const updateAlerta = (id: number, data: Partial<Alerta>) => api.put<void>(`/Alerta/${id}`, data);
+export const deleteAlerta = (id: number) => api.delete<void>(`/Alerta/${id}`);
+
+// Tipos para Sensor e LeituraSensor
+export interface Sensor {
+  id: number;
+  tipo: string;
+  ativo: boolean;
+  localDeRiscoId: number;
+}
+
+export interface LeituraSensor {
+  id: number;
+  sensorId: number;
+  nivelAgua: number;
+  dataHora: string;
+}
+
+// Funções para Sensor
+export const createSensor = (data: Partial<Sensor>) => api.post<Sensor>('/Sensor', data);
+export const getSensores = () => api.get<Sensor[]>('/Sensor');
+
+// Funções para LeituraSensor
+export const createLeituraSensor = (data: { sensorId: number; nivelAgua: number }) => api.post<LeituraSensor>('/LeituraSensor', data);
 
 export default api;

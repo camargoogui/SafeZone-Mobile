@@ -13,7 +13,10 @@ const LocationCard: React.FC<LocationCardProps> = ({ location, onPress }) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.name}>{location.nome}</Text>
+        <View>
+          <Text style={styles.name}>{location.nome}</Text>
+          <Text style={styles.id}>ID: {location.id}</Text>
+        </View>
         <AlertBadge status={location.statusAlerta} />
       </View>
       <Text style={styles.level}>Nível da água: {location.nivel !== undefined ? location.nivel + 'cm' : 'N/A'}</Text>
@@ -46,6 +49,10 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.large,
     fontWeight: 'bold',
     color: colors.text,
+  },
+  id: {
+    fontSize: fontSizes.small,
+    color: colors.muted,
   },
   level: {
     fontSize: fontSizes.medium,

@@ -9,6 +9,7 @@ import LocationDetailsScreen from "./src/screens/LocationDetailsScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "./src/theme/theme";
 import LocationFormScreen from "./src/screens/LocationFormScreen";
+import AlertFormScreen from "./src/screens/AlertFormScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -60,6 +61,11 @@ export default function App() {
           name="LocationForm"
           component={LocationFormScreen}
           options={{ title: "Cadastro de Local" }}
+        />
+        <Stack.Screen
+          name="AlertForm"
+          component={AlertFormScreen}
+          options={{ title: "Cadastro de Alerta" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
