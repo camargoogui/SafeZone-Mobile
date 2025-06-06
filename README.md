@@ -2,6 +2,16 @@
 
 O SafeZone é um aplicativo mobile desenvolvido com React Native e Expo Go para monitoramento de níveis de água em áreas urbanas, ajudando na prevenção de enchentes.
 
+## 📋 Descrição da Solução
+
+O SafeZone é uma solução completa para monitoramento e prevenção de enchentes em áreas urbanas. O aplicativo foi desenvolvido com foco na experiência do usuário e na eficiência do monitoramento, oferecendo as seguintes características principais:
+
+### 🎯 Objetivo
+- Monitorar os níveis de água em pontos críticos da cidade
+- Alertar a população sobre possíveis enchentes
+- Facilitar o gerenciamento de locais de risco
+- Promover a segurança da comunidade
+
 ## 🎥 Demonstração
 
 [Assista ao vídeo de demonstração do projeto](https://youtu.be/dLIv7c3L3ic)
