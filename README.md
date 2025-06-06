@@ -28,12 +28,12 @@ O SafeZone é um aplicativo mobile desenvolvido com React Native e Expo Go para 
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/safezone-mobile.git
+git clone https://github.com/camargoogui/SafeZone-Mobile.git
 ```
 
 2. Instale as dependências:
 ```bash
-cd safezone-mobile
+cd SafeZone-Mobile
 npm install
 ```
 
@@ -47,28 +47,44 @@ npx expo start
 ## 📦 Estrutura do Projeto
 
 ```
-/safezone-app
-├── /screens
-│   ├── HomeScreen.js
-│   ├── LocationsScreen.js
-│   ├── DetailsScreen.js
-│   ├── AddLocationScreen.js
-│   └── AlertsHistoryScreen.js
-├── /components
-│   ├── Header.js
-│   ├── LocationCard.js
-│   └── AlertBadge.js
-├── /services
-│   └── api.js
-├── App.js
-└── package.json
+/SAFEZONE-MOBILE
+├── .expo
+├── assets
+├── node_modules
+├── src
+│   ├── components
+│   │   ├── AlertBadge.tsx
+│   │   ├── Header.tsx
+│   │   └── LocationCard.tsx
+│   ├── context
+│   │   └── SelectedLocationContext.tsx
+│   ├── screens
+│   │   ├── AlertFormScreen.tsx
+│   │   ├── AlertsScreen.tsx
+│   │   ├── CommunityScreen.tsx
+│   │   ├── HomeScreen.tsx
+│   │   ├── LocationDetailsScreen.tsx
+│   │   └── LocationFormScreen.tsx
+│   ├── services
+│   │   └── api.ts
+│   ├── theme
+│   │   └── theme.ts
+│   └── types
+│       └── index.ts
+├── .gitignore
+├── app.json
+├── App.tsx
+├── package-lock.json
+├── package.json
+└── README.md
+
 ```
 
 ## 🔗 API
 
-O aplicativo consome uma API REST para obter os dados dos sensores IoT. Os endpoints principais são:
+O aplicativo consome uma API REST para obter os dados. Os endpoints principais são:
 
-- GET /locais - Lista todos os locais monitorados
+- GET /LocalDeRisco - Lista todos os locais monitorados
 - GET /locais/:id - Dados de um local específico
 - GET /alertas - Histórico de alertas
 
