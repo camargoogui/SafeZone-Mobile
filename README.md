@@ -10,6 +10,12 @@ O SafeZone é um aplicativo mobile desenvolvido com React Native e Expo Go para 
 - Axios
 - AsyncStorage
 
+## 👥 Integrantes
+
+- RM556270 - **Bianca Vitoria** - 2TDSPZ  
+- RM555166 - **Guilherme Camargo** - 2TDSPM  
+- RM555131 - **Icaro Americo** - 2TDSPM
+
 ## 📱 Funcionalidades
 
 - Visualização de locais monitorados
