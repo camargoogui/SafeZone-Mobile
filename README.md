@@ -2,6 +2,10 @@
 
 O SafeZone é um aplicativo mobile desenvolvido com React Native e Expo Go para monitoramento de níveis de água em áreas urbanas, ajudando na prevenção de enchentes.
 
+## 🎥 Demonstração
+
+[Assista ao vídeo de demonstração do projeto](https://youtu.be/dLIv7c3L3ic)
+
 ## 🚀 Tecnologias Utilizadas
 
 - React Native
@@ -23,6 +27,8 @@ O SafeZone é um aplicativo mobile desenvolvido com React Native e Expo Go para 
 - Histórico de eventos
 - Cadastro de novos locais
 - Detalhes de cada local monitorado
+- Monitoramento de sensores
+- Registro de leituras de nível de água
 
 ## 🛠️ Instalação
 
@@ -82,11 +88,31 @@ npx expo start
 
 ## 🔗 API
 
-O aplicativo consome uma API REST para obter os dados. Os endpoints principais são:
+O aplicativo consome uma API REST desenvolvida em .NET. O repositório da API pode ser encontrado em: [SafeZone-DotNet](https://github.com/camargoogui/SafeZone-DotNet.git)
 
-- GET /LocalDeRisco - Lista todos os locais monitorados
-- GET /locais/:id - Dados de um local específico
-- GET /alertas - Histórico de alertas
+### Endpoints Principais
+
+#### Locais de Risco
+- `GET /LocalDeRisco` - Lista todos os locais monitorados
+- `GET /LocalDeRisco/:id` - Dados de um local específico
+- `POST /LocalDeRisco` - Cria um novo local
+- `PUT /LocalDeRisco/:id` - Atualiza um local existente
+- `DELETE /LocalDeRisco/:id` - Remove um local
+
+#### Alertas
+- `GET /Alerta` - Lista todos os alertas
+- `GET /Alerta/:id` - Dados de um alerta específico
+- `GET /Alerta/ativos` - Lista apenas alertas ativos
+- `POST /Alerta` - Cria um novo alerta
+- `PUT /Alerta/:id` - Atualiza um alerta
+- `DELETE /Alerta/:id` - Remove um alerta
+
+#### Sensores
+- `GET /Sensor` - Lista todos os sensores
+- `POST /Sensor` - Cria um novo sensor
+
+#### Leituras de Sensor
+- `POST /LeituraSensor` - Registra uma nova leitura de nível de água
 
 ## 📝 Licença
 
